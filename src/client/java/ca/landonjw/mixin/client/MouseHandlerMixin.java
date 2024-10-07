@@ -26,13 +26,16 @@ public class MouseHandlerMixin {
     public boolean open_camera$modifyRotation(LocalPlayer player, double cursorDeltaX, double cursorDeltaY) {
         if (!(player instanceof Rollable rollable)) return true;
 
-        var pitch = cursorDeltaY * 0.15f;
-        var roll = cursorDeltaX * 0.15f;
+        rollable.updateOrientation(() -> {
+            var pitch = cursorDeltaY * 0.15f;
+            var roll = cursorDeltaX * 0.15f;
 
-        var pitchQ = Axis.XP.rotationDegrees((float)pitch);
-        var rollQ = Axis.ZP.rotationDegrees((float)roll);
+            var pitchQ = Axis.XP.rotationDegrees((float)pitch);
+            var rollQ = Axis.ZP.rotationDegrees((float)roll);
 
-        pitchQ.mul(rollQ).mul(rollable.getOrientation(), rollable.getOrientation());
+            var rotation = pitchQ.mul(rollQ);
+            return rotation.mul(rollable.getOrientation(), rollable.getOrientation());
+        });
         return false;
     }
 

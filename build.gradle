@@ -23,9 +23,8 @@ loom {
 
 	var clientConfig = runConfigs.getByName("client")
 	clientConfig.runDir = "runClient"
-	clientConfig.programArg("--username=landonjw")
+//	clientConfig.programArg("--username=landonjw")
 	clientConfig.vmArgs("-Dmixin.debug.export=true")
-	clientConfig.programArg("--8c9349fe-8e50-448c-a6e2-12d7a3a32991")
 	var serverConfig = runConfigs.getByName("server")
 	serverConfig.runDir = "runServer"
 

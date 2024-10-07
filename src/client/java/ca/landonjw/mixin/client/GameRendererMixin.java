@@ -2,11 +2,8 @@ package ca.landonjw.mixin.client;
 
 import ca.landonjw.Rollable;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,9 +34,7 @@ public class GameRendererMixin {
             method = "renderLevel",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/math/Axis;rotationDegrees(F)Lorg/joml/Quaternionf;",
-                    ordinal = 3,
-                    shift = At.Shift.AFTER
+                    target = "Lorg/joml/Matrix3f;<init>(Lorg/joml/Matrix3fc;)V"
             )
     )
     public void open_camera$applyCameraRotations(float f, long l, PoseStack poseStack, CallbackInfo ci) {

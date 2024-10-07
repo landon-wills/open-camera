@@ -2,10 +2,12 @@ package ca.landonjw;
 
 import org.joml.Quaternionf;
 
+import java.util.function.Supplier;
+
 public interface Rollable {
 
     Quaternionf getOrientation();
 
-    void setOrientation(Quaternionf orientation);
+    void updateOrientation(Supplier<Quaternionf> update);
 
 }
