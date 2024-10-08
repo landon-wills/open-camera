@@ -39,6 +39,7 @@ public class CameraMixin implements Rollable {
     public void open_camera$setRotation(float f, float g, CallbackInfo ci) {
         if (this.entity instanceof Rollable rollable) {
             this.orientation = rollable.getOrientation();
+            this.rotation.set(this.orientation.conjugate(new Quaternionf()));
             this.forwards.set(0.0F, 0.0F, 1.0F).rotate(this.rotation);
             this.up.set(0.0F, 1.0F, 0.0F).rotate(this.rotation);
             this.left.set(1.0F, 0.0F, 0.0F).rotate(this.rotation);
