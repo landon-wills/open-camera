@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,14 +28,12 @@ public class MouseHandlerMixin {
         if (!(player instanceof Rollable rollable)) return true;
 
         rollable.updateOrientation(() -> {
-            var pitch = cursorDeltaY * 0.15f;
-            var roll = cursorDeltaX * 0.15f;
+            var pitch = - cursorDeltaY * 0.015f;
+            var roll = - cursorDeltaX * 0.015f;
 
-            var pitchQ = Axis.XP.rotationDegrees((float)pitch);
-            var rollQ = Axis.ZP.rotationDegrees((float)roll);
-
-            var rotation = pitchQ.mul(rollQ);
-            return rotation.mul(rollable.getOrientation(), rollable.getOrientation());
+            return rollable.getOrientation()
+                    .rotate((float) pitch, new Vector3f(1, 0, 0))
+                    .rotate((float) roll, new Vector3f(0, 0, 1));
         });
         return false;
     }

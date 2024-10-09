@@ -1,13 +1,14 @@
 package ca.landonjw;
 
+import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 
 import java.util.function.Supplier;
 
 public interface Rollable {
 
-    Quaternionf getOrientation();
+    Matrix3f getOrientation();
 
-    void updateOrientation(Supplier<Quaternionf> update);
+    void updateOrientation(Supplier<Matrix3f> update);
 
 }
