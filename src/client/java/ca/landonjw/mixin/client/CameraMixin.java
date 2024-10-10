@@ -2,6 +2,7 @@ package ca.landonjw.mixin.client;
 
 import ca.landonjw.Rollable;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
@@ -28,6 +29,7 @@ public class CameraMixin implements Rollable {
     @Shadow private float xRot;
     @Shadow private float yRot;
     @Unique Matrix3f orientation = new Matrix3f();
+    @Unique Minecraft minecraft = Minecraft.getInstance();
 
     @Override
     public Matrix3f getOrientation() {
@@ -44,7 +46,11 @@ public class CameraMixin implements Rollable {
         if (this.entity instanceof Rollable rollable) {
             this.orientation = rollable.getOrientation();
 
-            this.rotation.set(this.orientation.normal(new Matrix3f()).getNormalizedRotation(new Quaternionf()));
+            var newRotation = this.orientation.normal(new Matrix3f()).getNormalizedRotation(new Quaternionf());
+            if (this.minecraft.options.getCameraType().isMirrored()) {
+                newRotation.rotateY((float)Math.toRadians(180));
+            }
+            this.rotation.set(newRotation);
             this.forwards.set(getForwardVector());
             this.up.set(getUpVector());
             this.left.set(getLeftVector());
