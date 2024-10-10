@@ -5,7 +5,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
-import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
 
 @Mixin(Camera.class)
 public class CameraMixin implements Rollable {
@@ -29,7 +27,7 @@ public class CameraMixin implements Rollable {
     @Shadow @Final private Vector3f left;
     @Shadow private float xRot;
     @Shadow private float yRot;
-    @Unique Matrix3f  orientation = new Matrix3f();
+    @Unique Matrix3f orientation = new Matrix3f();
 
     @Override
     public Matrix3f getOrientation() {
@@ -47,9 +45,9 @@ public class CameraMixin implements Rollable {
             this.orientation = rollable.getOrientation();
 
             this.rotation.set(this.orientation.normal(new Matrix3f()).getNormalizedRotation(new Quaternionf()));
-            this.forwards.set(this.orientation.transform(new Vector3f(0, 0, 1)));
-            this.up.set(this.orientation.transform(new Vector3f(0, 1, 0)));
-            this.left.set(this.orientation.transform(new Vector3f(1, 0, 0)));
+            this.forwards.set(getForwardVector());
+            this.up.set(getUpVector());
+            this.left.set(getLeftVector());
 
             ci.cancel();
         }
