@@ -1,21 +1,26 @@
 package ca.landonjw.mixin.client;
 
 import ca.landonjw.Rollable;
+import ca.landonjw.math.Smoother;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {
 
     @Shadow @Final private Minecraft minecraft;
+
+    @Unique
+    Smoother pitchSmoother = new Smoother(30);
+    @Unique
+    Smoother rollSmoother = new Smoother(30);
 
     @WrapWithCondition(
             method = "turnPlayer",
@@ -28,12 +33,11 @@ public class MouseHandlerMixin {
         if (!(player instanceof Rollable rollable)) return true;
 
         rollable.updateOrientation(() -> {
-            var pitch = - cursorDeltaY * 0.015f;
-            var roll = - cursorDeltaX * 0.015f;
+            var pitch = pitchSmoother.smooth((float) (cursorDeltaY * 0.15f), 1);
+            var roll = rollSmoother.smooth((float) (cursorDeltaX * 0.15f), 1);
 
-            return rollable.getOrientation()
-                    .rotate((float) pitch, new Vector3f(1, 0, 0))
-                    .rotate((float) roll, new Vector3f(0, 0, 1));
+            // This has side effects so either remove return or make a duplicate
+            return rollable.rotate(0.0F, pitch, roll).getOrientation();
         });
         return false;
     }
