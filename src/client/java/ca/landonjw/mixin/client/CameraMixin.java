@@ -26,8 +26,6 @@ public class CameraMixin implements Rollable {
     @Shadow @Final private Vector3f forwards;
     @Shadow @Final private Vector3f up;
     @Shadow @Final private Vector3f left;
-    @Shadow private float xRot;
-    @Shadow private float yRot;
     @Unique Matrix3f orientation = new Matrix3f();
     @Unique Minecraft minecraft = Minecraft.getInstance();
 
