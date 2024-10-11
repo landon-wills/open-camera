@@ -15,46 +15,39 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.Supplier;
-
-
 @Mixin(Camera.class)
-public class CameraMixin implements Rollable {
+public class CameraMixin {
 
     @Shadow private Entity entity;
     @Shadow @Final private Quaternionf rotation;
     @Shadow @Final private Vector3f forwards;
     @Shadow @Final private Vector3f up;
     @Shadow @Final private Vector3f left;
-    @Unique Matrix3f orientation = new Matrix3f();
+    @Shadow private float xRot;
+    @Shadow private float yRot;
     @Unique Minecraft minecraft = Minecraft.getInstance();
-
-    @Override
-    public Matrix3f getOrientation() {
-        return orientation;
-    }
-
-    @Override
-    public void updateOrientation(Supplier<Matrix3f> update) {
-        this.orientation = update.get();
-    }
 
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     public void open_camera$setRotation(float f, float g, CallbackInfo ci) {
-        if (this.entity instanceof Rollable rollable) {
-            this.orientation = rollable.getOrientation();
-
-            var newRotation = this.orientation.normal(new Matrix3f()).getNormalizedRotation(new Quaternionf());
-            if (this.minecraft.options.getCameraType().isMirrored()) {
-                newRotation.rotateY((float)Math.toRadians(180));
-            }
-            this.rotation.set(newRotation);
-            this.forwards.set(getForwardVector());
-            this.up.set(getUpVector());
-            this.left.set(getLeftVector());
-
-            ci.cancel();
+        if (!(this.entity instanceof Rollable rollable)) return;
+        if (!rollable.shouldRoll()) {
+            rollable.clearRotation();
+            return;
         }
+        if (rollable.getOrientation() == null) return;
+
+        var newRotation = rollable.getOrientation().normal(new Matrix3f()).getNormalizedRotation(new Quaternionf());
+        if (this.minecraft.options.getCameraType().isMirrored()) {
+            newRotation.rotateY((float)Math.toRadians(180));
+        }
+        this.rotation.set(newRotation);
+        this.xRot = rollable.getPitch();
+        this.yRot = rollable.getYaw();
+        this.forwards.set(rollable.getForwardVector());
+        this.up.set(rollable.getUpVector());
+        this.left.set(rollable.getLeftVector());
+
+        ci.cancel();
     }
 
 }

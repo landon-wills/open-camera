@@ -19,11 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MouseHandlerMixin {
 
     @Shadow @Final private Minecraft minecraft;
-
-    @Unique
-    SmoothDouble pitchSmoother = new SmoothDouble();
-    @Unique
-    SmoothDouble rollSmoother = new SmoothDouble();
+    @Unique SmoothDouble pitchSmoother = new SmoothDouble();
+    @Unique SmoothDouble rollSmoother = new SmoothDouble();
 
     @WrapWithCondition(
             method = "turnPlayer",
@@ -34,14 +31,11 @@ public class MouseHandlerMixin {
     )
     public boolean open_camera$modifyRotation(LocalPlayer player, double cursorDeltaX, double cursorDeltaY, @Local(argsOnly = true) double d) {
         if (!(player instanceof Rollable rollable)) return true;
+        if (!rollable.shouldRoll()) return true;
 
-        rollable.updateOrientation(() -> {
-            var pitch = pitchSmoother.getNewDeltaValue(cursorDeltaY * 0.15f, d);
-            var roll = rollSmoother.getNewDeltaValue(cursorDeltaX * 0.15f, d);
-
-            // This has side effects so either remove return or make a duplicate
-            return rollable.rotate(0.0F, (float)pitch, (float)roll).getOrientation();
-        });
+        var pitch = pitchSmoother.getNewDeltaValue(cursorDeltaY * 0.15f, d);
+        var roll = rollSmoother.getNewDeltaValue(cursorDeltaX * 0.15f, d);
+        rollable.rotate(0.0F, (float)pitch, (float)roll);
         return false;
     }
 
@@ -49,15 +43,12 @@ public class MouseHandlerMixin {
     private void open_camera$maintainMovementWhenInScreens(CallbackInfo ci, @Local(ordinal = 1) double e) {
         if (minecraft.player == null) return;
         if (!(minecraft.player instanceof Rollable rollable)) return;
+        if (!rollable.shouldRoll()) return;
         if (minecraft.isPaused()) return;
 
-        rollable.updateOrientation(() -> {
-            var pitch = pitchSmoother.getNewDeltaValue(0, e);
-            var roll = rollSmoother.getNewDeltaValue(0, e);
-
-            // This has side effects so either remove return or make a duplicate
-            return rollable.rotate(0.0F, (float)pitch, (float)roll).getOrientation();
-        });
+        var pitch = pitchSmoother.getNewDeltaValue(0, e);
+        var roll = rollSmoother.getNewDeltaValue(0, e);
+        rollable.rotate(0.0F, (float)pitch, (float)roll);
     }
 
 }
