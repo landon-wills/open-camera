@@ -20,9 +20,7 @@ import java.util.function.Function;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity implements Rollable {
-
-    @Shadow @Final private static Logger LOGGER;
-    @Unique private Matrix3f orientation = new Matrix3f();
+    @Unique private Matrix3f orientation = null;
 
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
